@@ -1,0 +1,26 @@
+
+require(data.table)
+require(dplyr)
+require(sp)
+require(sf)
+library(raster)
+library(rgdal)
+library(PROJ)
+
+# sorting fisheries data
+
+new_data <- read.csv('C:/Users/Bonsu/Desktop/Thuenen/PASSIVE GEARS IN OWF/FDI_spatial_data_EU28/spatial_effort_EU28.csv')
+
+new_data_dt <- as.data.table(new_data)
+
+
+# first remove duplicates
+new_data_dt_unique <- new_data_dt[!duplicated(new_data_dt[, c("year", "quarter", "vessel_length", "fishing_tech", "gear_type", "mesh_size_range", "target_assemblage", "metier", "supra_region", "sub_region", "specon_tech", "deep", "rectangle_type", "icesname", "totfishdays", "rectangle_lon", "rectangle_lat")]), ]
+
+# then sort data to include pots and traps in the North sea region
+passive_gear <- subset(new_data_dt_unique, gear_type == "FPO") #only FPO
+cru_unique <- subset(passive_gear, target_assemblage == "CRU") #only crustaceans
+cru_unique_nsr <- subset(crustaceans, sub_region %in% c("27.4.A", "27.4.B", "27.4.C"))
+
+# finding the aggregated mean effort per ices cell for 2013 to 2021
+cru_unique_mean <- cru_unique[ , .(meandays = mean(totfishdays)), by = (icesname), ]
