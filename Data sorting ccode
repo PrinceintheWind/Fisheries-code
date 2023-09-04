@@ -17,20 +17,20 @@ write.csv(nsr, file = "NSR.csv")
 
 #STEP2
 # excluding 2021
-years_to_exclude <- c( '2021')
-nsr13to20 <- nsr[!nsr$year %in% years_to_exclude, ]
+years_to_exclude <- c('2013', '2021')
+nsr14to20 <- nsr[!nsr$year %in% years_to_exclude, ]
 
 
 #STEP3
-# sum effort for each ices triangle per year. this adds all the quarters into one year
-sumicesquarter <- nsr13to20[ , .(sum_days = sum(totfishdays)), by = .(icesname, year)]
-write.csv(sumicesquarter, file = "sumofquarter.csv")
+# sum effort for each ices triangle per quarter for each year
+summed_fishdays <- nsr14to20[ , .(sum_days = sum(totfishdays)), by = .(icesname, year)]
+write.csv(summed_fishdays, file = "sumofquarter.csv")
 
 #STEP 4
 # mean effort across all data years for each ices rectangle 
-meanicesyear <- sumicesyear[ , .(mean_days = mean(sum_days)), by = .(icesname)]
-write.csv(meanicesyear, file = "explainable mean.csv")
+meanperrectagle <- summed_fishdays[ , .(mean_days = mean(sum_days)), by = .(icesname)]
+write.csv(meanperrectagle, file = "explainable mean1.csv")
 
 # adding up the years only
-sumofyears <- sumicesquarter[ , .(sum_years = sum(sum_days)), by = .(year)]
+sumofyears <- summed_fishdays[ , .(sum_years = sum(sum_days)), by = .(year)]
 write.csv(sumofyears, file = "sumofyears.csv")
